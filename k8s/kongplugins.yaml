@@ -1,0 +1,43 @@
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+plugin: rate-limiting
+metadata:
+  name: todoapi-rate-limit
+config:
+  second: 1
+  limit_by: consumer
+  policy: local
+---
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+plugin: response-transformer
+metadata:
+  name: add-response-header
+config:
+  add:
+    headers:
+    - 'x-custom-response-header: custom-value'
+---
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+plugin: request-transformer
+metadata:
+  name: add-request-header
+config:
+  add:
+    headers:
+    - 'x-custom-request-header: custom-value'
+---
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+plugin: key-auth
+metadata:
+  name: todoapi-auth
+---
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: todo-basic-auth
+config:
+  hide_credentials: true
+plugin: basic-auth

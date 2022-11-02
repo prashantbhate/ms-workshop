@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hello-ingress
+  annotations:
+    kubernetes.io/ingress.class: kong
+    konghq.com/plugins: add-request-header,add-response-header
+spec:
+  ingressClassName: kong
+  rules:
+  - http:
+      paths:
+      - path: /hello/v1
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: hello
+            port:
+              number: 80

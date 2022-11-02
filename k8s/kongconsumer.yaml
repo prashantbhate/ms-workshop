@@ -1,0 +1,19 @@
+apiVersion: configuration.konghq.com/v1
+kind: KongConsumer
+metadata:
+  name: todoapi
+  annotations:
+    kubernetes.io/ingress.class: kong
+username: todoapi
+credentials:
+- todoapi-apikey
+---
+apiVersion: configuration.konghq.com/v1
+kind: KongConsumer
+metadata:
+  name: todoui
+  annotations:
+    kubernetes.io/ingress.class: kong
+username: todoui
+credentials:
+- todoui-basic-auth-cred

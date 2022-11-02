@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todoapi
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: todoapi
+  template:
+    metadata:
+      labels:
+        app: todoapi
+    spec:
+      containers:
+      - name: todoapi
+        image: todoapi
+        imagePullPolicy: IfNotPresent
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "100m"
+        ports:
+        - containerPort: 3000
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        envFrom:
+        - configMapRef:
+            name: todoapi-config
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: 3000
+          failureThreshold: 1
+          periodSeconds: 10
+
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: 3000
+          failureThreshold: 1
+          periodSeconds: 10
+
+        startupProbe:
+          httpGet:
+            path: /health/live
+            port: 3000
+          failureThreshold: 30
+          periodSeconds: 10
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: todoapi
+  annotations: 
+    # konghq.com/plugins: custom-rate-limit
+    konghq.com/plugins: todoapi-rate-limit,todoapi-auth
+
+spec:
+  selector:
+    app: todoapi
+  ports:
+  - port: 80
+    targetPort: 3000

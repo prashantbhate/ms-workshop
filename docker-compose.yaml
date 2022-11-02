@@ -1,0 +1,53 @@
+services:
+  todoui:
+    build:
+      context: todoui
+      # target: development
+    environment:
+      - API_URL=http://localhost:5000/todos
+      - API_KEY=key
+    ports:
+      - 5001:80
+    stdin_open: true
+    # volumes:
+    #   - ./todoui:/usr/src/app
+    #   - /usr/src/app/node_modules
+    container_name: todoui
+    restart: always
+    networks:
+      - react-express
+    depends_on:
+      - todoapi
+
+  todoapi:
+    container_name: todoapi
+    restart: always
+    build:
+      context: todoapi
+      # target: development
+    environment:
+      - REDIS_URL=redis://redis-stack:6379
+      - NODE_ENV=production
+    ports:
+      - 5000:3000
+    # volumes:
+    #   - ./todoapi:/usr/src/app
+    #   - /usr/src/app/node_modules
+    depends_on:
+      - redis-stack
+    networks:
+      - express-redis
+      - react-express
+  redis-stack:
+    container_name: redis-stack
+    restart: always
+    image: redis/redis-stack:latest
+    # volumes:
+    #   - ./data:/data
+    networks:
+      - express-redis
+    expose:
+      - 6379
+networks:
+  react-express:
+  express-redis:

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mcpod
+  labels:
+    name: mcpod
+    app: nginx
+    app1: hello
+    city: Bangalore
+spec:
+  containers:
+    - name: nginx
+      image: nginx
+    - name: hello
+      image: gcr.io/google-samples/hello-app:1.0
+  

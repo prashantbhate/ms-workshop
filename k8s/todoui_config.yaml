@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: todoui-config
+data:
+  API_URL: http://localhost/todos
+  API_KEY: abcd
