@@ -29,7 +29,7 @@ function UserInput(props) {
             ref={ref}
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyUp={(e) => { if (e.key === 'Enter') onClick() }}
+            onKeyDown={(e) => { if (e.key === 'Enter') onClick() }}
 
             aria-label="add text"
             aria-describedby="basic-addon2"

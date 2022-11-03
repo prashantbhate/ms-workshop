@@ -1,4 +1,4 @@
-export async function list(url) {
+export async function listtodo(url) {
     return fetch(url, {
         method: 'GET',
         headers: {
@@ -7,7 +7,7 @@ export async function list(url) {
         }
     })
 }
-export async function create(url, todo) {
+export async function createtodo(url, todo) {
     return fetch(url, {
         method: 'POST',
         headers: {
@@ -18,7 +18,7 @@ export async function create(url, todo) {
         body: JSON.stringify(todo)
     })
 }
-export async function update(url, todo) {
+export async function updatetodo(url, todo) {
     return fetch(url, {
         method: 'PUT',
         headers: {
@@ -29,7 +29,7 @@ export async function update(url, todo) {
         body: JSON.stringify(todo)
     });
 }
-export async function remove(url) {
+export async function removetodo(url) {
     return fetch(url, {
         method: 'DELETE',
         headers: {

@@ -9,7 +9,7 @@ test('it should list items', () => {
     array.push({
       id: index,
       value: 'todo' + index,
-      done:false
+      done: false
     });
 
   }
@@ -29,19 +29,19 @@ test('it should callback on click', () => {
     array.push({
       id: index,
       name: 'todo' + index,
-      done:false
+      done: false
     });
 
   }
   const onDeleteMock = jest.fn();
   const onUpdateMock = jest.fn();
 
-  render(<TodoList 
+  render(<TodoList
     onDelete={onDeleteMock}
     onUpdate={onUpdateMock}
     value={array} />);
 
-    const closeButton = screen.getByLabelText('1-todo1');
+  const closeButton = screen.getByLabelText('1-todo1');
   fireEvent.click(closeButton);
 
   expect(onDeleteMock.mock.calls.length).toBe(1);
@@ -51,6 +51,6 @@ test('it should callback on click', () => {
   fireEvent.click(checkbox);
   expect(onUpdateMock.mock.calls.length).toBe(1);
   expect(onUpdateMock.mock.calls[0][0]).toBe(1);
-  expect(onUpdateMock.mock.calls[0][1]).toBe(false);
+  expect(onUpdateMock.mock.calls[0][1]).toBe(true);
 
 });

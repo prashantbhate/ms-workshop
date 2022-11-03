@@ -23,7 +23,7 @@ function TodoList(props) {
                                 aria-label={item.id + '-' + item.name + '-check'}
                                 label={item.name}
                                 checked={item.done}
-                                onChange={() => { props.onUpdate(item.id, item.done) }} />
+                                onChange={() => { props.onUpdate(item.id, !item.done) }} />
                             <CloseButton
                                 className="ms-auto"
                                 aria-label={item.id + '-' + item.name}

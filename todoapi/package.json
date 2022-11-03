@@ -2,7 +2,7 @@
   "name": "todoapi",
   "version": "0.0.0",
   "private": true,
-  "scripts": {  
+  "scripts": {
     "dev": "NODE_ENV=development nodemon ./bin/www",
     "start": "node --require './tracing.js' ./bin/www",
     "test": "jest"
@@ -23,7 +23,8 @@
     "prom-client": "^14.1.0",
     "redis": "^4.3.1",
     "redis-om": "^0.3.6",
-    "testcontainers": "^9.0.0"
+    "testcontainers": "^9.0.0",
+    "ws": "^8.10.0"
   },
   "devDependencies": {
     "jest": "^27.5.1",

@@ -3,11 +3,12 @@
 /**
  * Module dependencies.
  */
- require('dotenv').config()
- 
+require('dotenv').config()
+
 var app = require('../app');
 var debug = require('debug')('todoapi:server');
 var http = require('http');
+const websocket = require('ws');
 
 /**
  * Get port from environment and store in Express.
@@ -21,6 +22,18 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
+// const wss = new websocket.Server({ server: server });
+
+// const list = [];
+// wss.on('connection', function connection(ws, req) {
+//   console.log('wss:connection');
+//   ws.on('message', function message(data) {
+//     console.log('received: %s', data);
+//     list.push(data);
+//     ws.send(JSON.stringify(list));
+//   });
+//   ws.send('server:connected');
+// });
 
 /**
  * Listen on provided port, on all network interfaces.

@@ -30,6 +30,39 @@ test('it should callback on button click after textentry', () => {
 
 });
 
+
+test('it should callback on enterKey after textentry', () => {
+
+    const onChangeMock = jest.fn();
+
+    render(<UserInput onChange={onChangeMock} />);
+
+    const button = screen.getByRole('button');
+    const input = screen.getByRole('textbox');
+    fireEvent.change(input, { target: { value: 'text' } })
+    fireEvent.keyDown(input, { key: 'Enter', code: 'Enter', charCode: 13 });
+
+    expect(onChangeMock.mock.calls.length).toBe(1);
+    expect(onChangeMock.mock.calls[0][0]).toBe('text');
+
+});
+
+
+test('it should callback on enterKey after textentry', () => {
+
+    const onChangeMock = jest.fn();
+
+    render(<UserInput onChange={onChangeMock} />);
+
+    const button = screen.getByRole('button');
+    const input = screen.getByRole('textbox');
+    fireEvent.change(input, { target: { value: 'text' } })
+    fireEvent.keyDown(input, { key: 'Delete', code: 'Delete', charCode: 46 });
+
+    expect(onChangeMock.mock.calls.length).toBe(0);
+
+});
+
 test('it should not callback on button click with empty text', () => {
 
     const onChangeMock = jest.fn();
