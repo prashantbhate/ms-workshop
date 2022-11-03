@@ -11,7 +11,6 @@ import CloseButton from 'react-bootstrap/CloseButton';
 function TodoList(props) {
 
     return (<ListGroup data-testid="todoList" >
-        {/* map over and print items */}
         {
             props.value.map(item => {
                 return (
