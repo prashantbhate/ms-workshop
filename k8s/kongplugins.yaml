@@ -4,7 +4,7 @@ plugin: rate-limiting
 metadata:
   name: todoapi-rate-limit
 config:
-  second: 2
+  second: 10
   limit_by: consumer
   policy: local
 ---

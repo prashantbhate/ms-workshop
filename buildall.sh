@@ -25,12 +25,23 @@ runlocally(){
     #run redis stack
     docker run --rm --name redis-stack -p 6379:6379 -p 8001:8001 redis/redis-stack:latest &
 
+    sleep 15
+
     cd todoapi
     NODE_ENV=development PORT=3001 npm run dev &
+
+    sleep 15
+
     cd ../todobroadcastapi
     NODE_ENV=development PORT=3002 npm run dev &
+
+    sleep 15
+
     cd ../todoui
     NODE_ENV=development PORT=3000 FORCE_COLOR=true npm run dev | cat &
+
+    sleep 15
+
     cd ..
 }
 
@@ -95,6 +106,7 @@ cd ../todobroadcastapi
 docker run --network todo-be -d --rm \
     -p 4002:3000 \
     -e JAEGER_URL=http://jaeger:4318/v1/traces \
+    -e REDIS_URL=redis://redis-stack:6379 \
     -e NODE_ENV=production \
     --name todobroadcastapi todobroadcastapi
 
