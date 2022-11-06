@@ -7,19 +7,26 @@ metadata:
 spec:
   ingressClassName: kong
   rules:
-  - http:
-      paths:
-      - path: /todos
-        pathType: Prefix
-        backend:
-          service:
-            name: todoapi
-            port:
-              number: 80
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: todoui
-            port:
-              number: 80
+    - http:
+        paths:
+          - path: /ws
+            pathType: Prefix
+            backend:
+              service:
+                name: todobroadcastapi
+                port:
+                  number: 80
+          - path: /todos
+            pathType: Prefix
+            backend:
+              service:
+                name: todoapi
+                port:
+                  number: 80
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: todoui
+                port:
+                  number: 80

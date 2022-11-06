@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todobroadcastapi
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: todobroadcastapi
+  template:
+    metadata:
+      labels:
+        app: todobroadcastapi
+    spec:
+      containers:
+        - name: todobroadcastapi
+          image: todobroadcastapi
+          imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+              memory: "256Mi"
+              cpu: "100m"
+          ports:
+            - containerPort: 3000
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          envFrom:
+            - configMapRef:
+                name: todobroadcastapi-config
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            failureThreshold: 1
+            periodSeconds: 10
+
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            failureThreshold: 1
+            periodSeconds: 10
+
+          startupProbe:
+            httpGet:
+              path: /
+              port: 3000
+            failureThreshold: 30
+            periodSeconds: 10
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: todobroadcastapi
+  annotations:
+    konghq.com/override: "kong-ws-customization"
+  # konghq.com/plugins: todoapi-rate-limit,todoapi-auth
+
+spec:
+  selector:
+    app: todobroadcastapi
+  ports:
+    - port: 80
+      targetPort: 3000

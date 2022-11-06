@@ -4,7 +4,7 @@ plugin: rate-limiting
 metadata:
   name: todoapi-rate-limit
 config:
-  second: 1
+  second: 2
   limit_by: consumer
   policy: local
 ---
@@ -16,7 +16,7 @@ metadata:
 config:
   add:
     headers:
-    - 'x-custom-response-header: custom-value'
+      - "x-custom-response-header: custom-value"
 ---
 apiVersion: configuration.konghq.com/v1
 kind: KongPlugin
@@ -26,7 +26,7 @@ metadata:
 config:
   add:
     headers:
-    - 'x-custom-request-header: custom-value'
+      - "x-custom-request-header: custom-value"
 ---
 apiVersion: configuration.konghq.com/v1
 kind: KongPlugin
@@ -41,3 +41,16 @@ metadata:
 config:
   hide_credentials: true
 plugin: basic-auth
+---
+apiVersion: configuration.konghq.com/v1
+kind: KongIngress
+metadata:
+  name: kong-ws-customization
+upstream:
+  # hash_on: header
+  # hash_on_header: x-lb
+  # hash_fallback: ip
+  hash_on: cookie
+  hash_on_cookie: "todo-cookie"
+  hash_on_cookie_path: "/ws"
+  algorithm: consistent-hashing

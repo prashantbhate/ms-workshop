@@ -1,12 +1,9 @@
-
 import { rest } from 'msw'
 import { setupServer } from 'msw/node'
 import { render, fireEvent, waitFor, within, screen } from '@testing-library/react'
 import '@testing-library/jest-dom'
 
-
-import App from './App';
-
+import TodoRoot from './TodoRoot';
 
 const server = setupServer(
   rest.get('/mocktodos', (req, res, ctx) => {
@@ -47,8 +44,6 @@ const server = setupServer(
   }),
 )
 
-const onChange = jest.fn();
-const afterLoad = jest.fn();
 
 beforeAll(() => server.listen())
 afterEach(() => server.resetHandlers())
@@ -59,20 +54,18 @@ afterEach(() => {
 });
 
 window._env_ = {
-  API_URL: "http://localhost:3000/todos",
+  API_URL: "/mocktodos",
   API_KEY: "dummy",
 }
 
 
 it('it should add update remove todo on button click', async () => {
-  const { rerender } = render(<App url="/mocktodos" stale={true} onChange={onChange} afterLoad={afterLoad} />);
+  render(<TodoRoot />);
 
   // load todos
   expect(screen.getByText('TODO LIST')).toBeInTheDocument();
   await waitFor(() => expect(screen.getByText("start loading")).toBeInTheDocument(), { timeout: 5000 });
   await waitFor(() => expect(screen.getByText("loaded")).toBeInTheDocument(), { timeout: 5000 });
-  expect(afterLoad).toHaveBeenCalledTimes(1);
-  rerender(<App url="/mocktodos" stale={false} onChange={onChange} afterLoad={afterLoad} />);
 
 
   const list = screen.getByTestId("todoList")
@@ -97,7 +90,6 @@ it('it should add update remove todo on button click', async () => {
   fireEvent.click(button);
   await waitFor(() => expect(screen.getByText("start adding")).toBeInTheDocument(), { timeout: 5000 });
   await waitFor(() => expect(screen.getByText("added")).toBeInTheDocument(), { timeout: 5000 });
-  expect(onChange).toHaveBeenCalledTimes(1);
 
   server.use(
     rest.get('/mocktodos', (req, res, ctx) => {
@@ -105,11 +97,8 @@ it('it should add update remove todo on button click', async () => {
     })
   )
 
-  rerender(<App url="/mocktodos" stale={true} onChange={onChange} afterLoad={afterLoad} />);
   await waitFor(() => expect(screen.getByText("start reloading")).toBeInTheDocument(), { timeout: 5000 });
   await waitFor(() => expect(screen.getByText("reloaded")).toBeInTheDocument(), { timeout: 5000 });
-  expect(afterLoad).toHaveBeenCalledTimes(2);
-  rerender(<App url="/mocktodos" stale={false} onChange={onChange} afterLoad={afterLoad} />);
 
   items = queryAllByRole("button")
   checkboxes = queryAllByRole("checkbox")
@@ -124,9 +113,6 @@ it('it should add update remove todo on button click', async () => {
 
   await waitFor(() => expect(screen.getByText("start updating")).toBeInTheDocument());
   await waitFor(() => expect(screen.getByText("updated")).toBeInTheDocument());
-  expect(onChange).toHaveBeenCalledTimes(2);
-
-
 
   server.use(
     rest.get('/mocktodos', (req, res, ctx) => {
@@ -134,11 +120,8 @@ it('it should add update remove todo on button click', async () => {
     })
   )
 
-  rerender(<App url="/mocktodos" stale={true} onChange={onChange} afterLoad={afterLoad} />);
   await waitFor(() => expect(screen.getByText("start reloading")).toBeInTheDocument(), { timeout: 5000 });
   await waitFor(() => expect(screen.getByText("reloaded")).toBeInTheDocument(), { timeout: 5000 });
-  expect(afterLoad).toHaveBeenCalledTimes(3);
-  rerender(<App url="/mocktodos" stale={false} onChange={onChange} afterLoad={afterLoad} />);
 
   //delete todos
 
@@ -147,7 +130,6 @@ it('it should add update remove todo on button click', async () => {
 
   await waitFor(() => expect(screen.getByText("start deleting")).toBeInTheDocument());
   await waitFor(() => expect(screen.getByText("deleted")).toBeInTheDocument());
-  expect(onChange).toHaveBeenCalledTimes(3);
 
 
   server.use(
@@ -156,12 +138,8 @@ it('it should add update remove todo on button click', async () => {
     })
   )
 
-  rerender(<App url="/mocktodos" stale={true} onChange={onChange} afterLoad={afterLoad} />);
   await waitFor(() => expect(screen.getByText("start reloading")).toBeInTheDocument(), { timeout: 5000 });
   await waitFor(() => expect(screen.getByText("reloaded")).toBeInTheDocument(), { timeout: 5000 });
-  expect(afterLoad).toHaveBeenCalledTimes(4);
-  rerender(<App url="/mocktodos" stale={false} onChange={onChange} afterLoad={afterLoad} />);
-
 
   items = queryAllByRole("button")
   checkboxes = queryAllByRole("checkbox")
@@ -171,18 +149,18 @@ it('it should add update remove todo on button click', async () => {
 });
 
 test('it should handle error while loading todo', async () => {
-  render(<App url="/load_error_mocktodos" stale={true} onChange={onChange} afterLoad={afterLoad} />);
+  window._env_.API_URL = "/load_error_mocktodos";
+  render(<TodoRoot />);
   await waitFor(() => expect(screen.getByText("start loading")).toBeInTheDocument());
   await waitFor(() => expect(screen.getByText("error loading")).toBeInTheDocument());
   await waitFor(() => expect(screen.getByText("error:500")).toBeInTheDocument());
 });
 
 test('it should handle error while adding todo', async () => {
-  render(<App url="/add_error_mocktodos" stale={true} onChange={onChange} afterLoad={afterLoad} />);
+  window._env_.API_URL = "/add_error_mocktodos";
+  render(<TodoRoot />);
   await waitFor(() => expect(screen.getByText("start loading")).toBeInTheDocument());
   await waitFor(() => expect(screen.getByText("loaded")).toBeInTheDocument());
-  expect(afterLoad).toHaveBeenCalledTimes(1);
-
 
   const button = screen.getByLabelText('add todo');
   const input = screen.getByRole('textbox');
@@ -195,10 +173,10 @@ test('it should handle error while adding todo', async () => {
 });
 
 test('it should handle error while updating todo', async () => {
-  render(<App url="/update_error_mocktodos" stale={true} onChange={onChange} afterLoad={afterLoad} />);
+  window._env_.API_URL = "/update_error_mocktodos";
+  render(<TodoRoot />);
   await waitFor(() => expect(screen.getByText("start loading")).toBeInTheDocument());
   await waitFor(() => expect(screen.getByText("loaded")).toBeInTheDocument());
-  expect(afterLoad).toHaveBeenCalledTimes(1);
 
   const todoCheckbox = screen.getByLabelText('1-Watch RRR-check');
   fireEvent.click(todoCheckbox);
@@ -210,10 +188,10 @@ test('it should handle error while updating todo', async () => {
 });
 
 test('it should handle error while deleting todo', async () => {
-  render(<App url="/delete_error_mocktodos" stale={true} onChange={onChange} afterLoad={afterLoad} />);
+  window._env_.API_URL = "/delete_error_mocktodos";
+  render(<TodoRoot />);
   await waitFor(() => expect(screen.getByText("start loading")).toBeInTheDocument());
   await waitFor(() => expect(screen.getByText("loaded")).toBeInTheDocument());
-  expect(afterLoad).toHaveBeenCalledTimes(1);
 
   const todoButton = screen.getByLabelText('1-Watch RRR');
   fireEvent.click(todoButton);

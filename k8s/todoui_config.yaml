@@ -4,4 +4,5 @@ metadata:
   name: todoui-config
 data:
   API_URL: http://localhost/todos
+  WS_URL: ws://localhost/ws
   API_KEY: abcd

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 // Bootstrap for react
 import Container from 'react-bootstrap/Container';
@@ -6,15 +6,13 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Alert from 'react-bootstrap/Alert';
 
-
 import { createtodo, updatetodo, removetodo, listtodo } from './todoApiClient';
 
 import TodoList from './TodoList';
 import UserInput from './UserInput';
 
-function App(props) {
+function App({ stale, url, onChange, afterLoad }) {
     const [list, setList] = useState([]);
-    const [stale, setStale] = useState(true);
     const [loadingStatus, setLoadingStatus] = useState('');
     const [error, setError] = useState('');
     const [podInfo, setPodInfo] = useState('');
@@ -26,7 +24,6 @@ function App(props) {
         setLoadingStatus(status)
         setPodInfo('')
         setError('')
-        setStale(false)
     }
 
     const handleResponse = (response) => {
@@ -45,12 +42,11 @@ function App(props) {
 
     const addItem = (value) => {
         resetState('start adding');
-        createtodo(props.url, { name: value })
+        createtodo(url, { name: value })
             .then((result) => handleResponse(result))
             .then(
                 (result) => {
                     setLoadingStatus('added');
-                    setStale(true);
                 }, (error) => handleError(error, 'error adding')
             )
     }
@@ -58,50 +54,57 @@ function App(props) {
     const updateItem = (key, isDone) => {
         resetState('start updating');
         const todo = list.find(todo => todo.id === key);
-        updatetodo(props.url + "/" + key, { ...todo, done: isDone })
+        updatetodo(url + "/" + key, { ...todo, done: isDone })
             .then((result) => handleResponse(result))
             .then(
                 (result) => {
                     setLoadingStatus('updated');
-                    setStale(true);
                 }, (error) => handleError(error, 'error updating'));
     }
 
     const deleteItem = (key) => {
         resetState('start deleting');
-        removetodo(props.url + "/" + key)
+        removetodo(url + "/" + key)
             .then((result) => handleResponse(result))
             .then(
                 () => {
                     setLoadingStatus('deleted');
-                    setStale(true);
                 }, (error) => handleError(error, 'error deleting'));
     }
 
     useEffect(() => {
-        if (stale) {
+        const modified = ["deleted", "updated", "added"]
+        if (modified.includes(loadingStatus)) {
+            console.log('onChange()')
+            onChange();
+        };
+        // eslint-disable-next-line
+    }, [loadingStatus]);
+
+    useEffect(() => {
+        if (stale === true) {
             const timer = setTimeout(() => {
-                const re = loadingStatus === '' ? '' : 're';
+                const re = (loadingStatus === '') ? '' : 're';
                 resetState('start ' + re + 'loading');
-                listtodo(props.url)
+                listtodo(url)
                     .then((result) => handleResponse(result))
                     .then(
                         (result) => {
                             setLoadingStatus(re + 'loaded')
                             setList(result)
+                            console.log('afterLoad()')
+                            afterLoad()
                         }, (error) => handleError(error, 'error ' + re + 'loading'));
             }, 100);
             return () => clearTimeout(timer);
         }
-
-    }, [stale, loadingStatus, props.url]);
+        // eslint-disable-next-line
+    }, [stale]);
 
     useEffect(() => {
         setAlertText(error ? "error:" + error.message : "success!");
         setVariant(error ? "danger" : "success");
     }, [error]);
-
-
 
     return (<Container>
         <Row style={{

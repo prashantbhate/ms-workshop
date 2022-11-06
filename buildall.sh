@@ -12,6 +12,7 @@ testlocally(){
 stoplocal(){
     kill -9 `lsof -t -i:3000`
     kill -9 `lsof -t -i:3001`
+    kill -9 `lsof -t -i:3002`
 
     docker stop redis-stack jaeger
 
@@ -25,15 +26,19 @@ runlocally(){
     docker run --rm --name redis-stack -p 6379:6379 -p 8001:8001 redis/redis-stack:latest &
 
     cd todoapi
-    NODE_ENV=development npm run dev &
+    NODE_ENV=development PORT=3001 npm run dev &
+    cd ../todobroadcastapi
+    NODE_ENV=development PORT=3002 npm run dev &
     cd ../todoui
-    NODE_ENV=development PORT=3001 FORCE_COLOR=true npm run dev | cat &
+    NODE_ENV=development PORT=3000 FORCE_COLOR=true npm run dev | cat &
     cd ..
 }
 
 buildimages() {
 cd todoapi
 docker build . -t todoapi
+cd ../todobroadcastapi
+docker build . -t todobroadcastapi
 cd ../todoui
 docker build . -t todoui
 cd ..
@@ -41,8 +46,8 @@ cd ..
 
 stopcontainers()
 {
-docker stop todoapi todoui redis-stack jaeger
-docker rm todoapi todoui redis-stack jaeger
+docker stop todoapi todoui todobroadcastapi redis-stack jaeger
+docker rm todoapi todoui todobroadcastapi redis-stack jaeger
 docker network rm todo-fe todo-be
 docker volume rm todo-data
 
@@ -80,16 +85,25 @@ docker run --network todo-be -d --rm \
 
 cd todoapi
 docker run --network todo-be -d --rm \
-    -p 4000:3000 \
+    -p 4001:3000 \
     -e JAEGER_URL=http://jaeger:4318/v1/traces \
     -e REDIS_URL=redis://redis-stack:6379 \
     -e NODE_ENV=production \
     --name todoapi todoapi
 
+cd ../todobroadcastapi
+docker run --network todo-be -d --rm \
+    -p 4002:3000 \
+    -e JAEGER_URL=http://jaeger:4318/v1/traces \
+    -e NODE_ENV=production \
+    --name todobroadcastapi todobroadcastapi
+
+
 cd ../todoui
 docker run --network todo-fe --rm -d \
-    -p 4001:80 \
-    -e API_URL=http://localhost:4000/todos \
+    -p 4000:80 \
+    -e WS_URL=ws://localhost:4002/ws \
+    -e API_URL=http://localhost:4001/todos \
     -e API_KEY=key \
     --name todoui todoui
 cd ..
@@ -104,6 +118,7 @@ undeployk8s()
     cd k8s
     kubectl delete -f todouideploy.yaml -f todoui_config.yaml
     kubectl delete -f todoapideploy.yaml -f todoapi_config.yaml
+    kubectl delete -f todobroadcastapideploy.yaml -f todobroadcastapi_config.yaml
     kubectl delete -f redisstack.yaml
     kubectl delete -f todoingress.yaml
     kubectl delete -f kongplugins.yaml -f kongconsumer.yaml
@@ -130,9 +145,10 @@ deployk8s() {
     kubectl apply -f kongplugins.yaml -f kongconsumer.yaml
     kubectl apply -f redisstack.yaml
     kubectl apply -f todoapi_config.yaml -f todoapideploy.yaml
+    kubectl apply -f todobroadcastapideploy.yaml -f todobroadcastapi_config.yaml
     kubectl apply -f todoui_config.yaml -f todouideploy.yaml
 
-    kubectl rollout status deploy/todoapi deploy/todoui --timeout=30s
+    kubectl rollout status deploy/todoapi deploy/todobroadcastapi deploy/todoui --timeout=60s
 
     kubectl apply -f todoingress.yaml
     cd ..

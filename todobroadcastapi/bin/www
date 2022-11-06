@@ -6,9 +6,10 @@
 require('dotenv').config()
 
 var app = require('../app');
+var { setupWebSocket } = require('../ws');
+
 var debug = require('debug')('todoapi:server');
 var http = require('http');
-const websocket = require('ws');
 
 /**
  * Get port from environment and store in Express.
@@ -22,6 +23,10 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
+
+setupWebSocket(server);
+
+
 
 /**
  * Listen on provided port, on all network interfaces.
