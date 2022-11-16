@@ -4,20 +4,22 @@ const client = new DynamoDBClient({});
 const { DynamoDBDocumentClient, PutCommand, DeleteCommand, ScanCommand } = require("@aws-sdk/lib-dynamodb");
 const ddbDocClient = DynamoDBDocumentClient.from(client);
 
+const tableName = process.env.SAMPLE_TABLE;
+
 async function get() {
     const scanparams = {
-        TableName: "mytable"
+        TableName: tableName
     };
     const res = await ddbDocClient.send(new ScanCommand(scanparams));
     const statusCode = res.httpStatusCode;
     const body = res.Items
     return { statusCode, body }
-
 }
+
 async function post(postitem, id) {
     delete postitem['id'];
     const postparams = {
-        TableName: "mytable", ReturnValues: 'ALL_OLD',
+        TableName: tableName, ReturnValues: 'ALL_OLD',
         Item: { fn: postitem.fn, ln: postitem.ln, id: id },
         ConditionExpression: "attribute_not_exists(id)",
     }
@@ -29,7 +31,7 @@ async function post(postitem, id) {
 
 async function put(putitem) {
     const putparams = {
-        TableName: "mytable", ReturnValues: 'ALL_OLD',
+        TableName: tableName, ReturnValues: 'ALL_OLD',
         Item: { fn: putitem.fn, ln: putitem.ln, id: putitem.id },
         ConditionExpression: "attribute_exists(id)",
     }
@@ -40,7 +42,7 @@ async function put(putitem) {
 }
 async function del(deleteitem) {
     const deleteparams = {
-        TableName: "mytable", ReturnValues: 'ALL_OLD',
+        TableName: tableName, ReturnValues: 'ALL_OLD',
         Key: { "id": deleteitem.id },
         ConditionExpression: "attribute_exists(id)",
     }
@@ -96,7 +98,7 @@ exports.handler = async (event, context) => {
                 throw new Error(`Unsupported method "${event.httpMethod}"`);
         }
     } catch (err) {
-        statusCode = '400';
+        statusCode = 400;
         body = err.stack;
     } finally {
         body = JSON.stringify(body);

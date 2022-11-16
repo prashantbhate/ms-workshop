@@ -9,5 +9,8 @@
     },
     "scripts": {
         "test": "jest"
+    },
+    "devDependencies": {
+        "aws-sdk-client-mock": "^2.0.0"
     }
 }
