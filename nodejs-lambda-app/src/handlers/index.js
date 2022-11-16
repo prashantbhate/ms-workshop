@@ -19,6 +19,7 @@ async function post(postitem, id) {
     const postparams = {
         TableName: "mytable", ReturnValues: 'ALL_OLD',
         Item: { fn: postitem.fn, ln: postitem.ln, id: id },
+        ConditionExpression: "attribute_not_exists(id)",
     }
     const postRes = await ddbDocClient.send(new PutCommand(postparams));
     const statusCode = postRes.httpStatusCode;
@@ -30,6 +31,7 @@ async function put(putitem) {
     const putparams = {
         TableName: "mytable", ReturnValues: 'ALL_OLD',
         Item: { fn: putitem.fn, ln: putitem.ln, id: putitem.id },
+        ConditionExpression: "attribute_exists(id)",
     }
     const putRes = await ddbDocClient.send(new PutCommand(putparams));
     const statusCode = putRes.httpStatusCode;
@@ -39,12 +41,23 @@ async function put(putitem) {
 async function del(deleteitem) {
     const deleteparams = {
         TableName: "mytable", ReturnValues: 'ALL_OLD',
-        Key: { "id": deleteitem.id }
+        Key: { "id": deleteitem.id },
+        ConditionExpression: "attribute_exists(id)",
     }
     const delRes = await ddbDocClient.send(new DeleteCommand(deleteparams));
     const statusCode = delRes.httpStatusCode;
     const body = { delRes };
     return { statusCode, body }
+}
+
+function parseAndValidate(body, mandatoryAttrs) {
+    const item = JSON.parse(body)
+    mandatoryAttrs.forEach((e) => {
+        if (!item.hasOwnProperty(e)) {
+            throw new Error(`Attribute "$e" is mandatory`);
+        }
+    })
+    return item;
 }
 
 
@@ -57,32 +70,28 @@ exports.handler = async (event, context) => {
     try {
         switch (event.httpMethod) {
             case 'DELETE':
-                const deleteitem = JSON.parse(event.body)
-                if (!deleteitem.hasOwnProperty('id')) {
-                    throw new Error('id mandatory');
-                }
+
+                const deleteitem = parseAndValidate(event.body, ['id']);
                 ({ statusCode, body } = await del(deleteitem));
                 break;
 
             case 'GET':
+
                 ({ statusCode, body } = await get());
                 break;
 
             case 'POST':
-                const postitem = JSON.parse(event.body)
-                if (!postitem.hasOwnProperty('fn') || !postitem.hasOwnProperty('ln')) {
-                    throw new Error('fn and ln are mandatory');
-                }
+
+                const postitem = parseAndValidate(event.body, ['fn', 'ln']);
                 ({ statusCode, body } = await post(postitem, context.awsRequestId))
                 break;
 
             case 'PUT':
-                const putitem = JSON.parse(event.body)
-                if (!putitem.hasOwnProperty('fn') || !putitem.hasOwnProperty('ln') || !putitem.hasOwnProperty('id')) {
-                    throw new Error('id, fn and ln are mandatory');
-                }
+
+                const putitem = parseAndValidate(event.body, ['id', 'fn', 'ln']);
                 ({ statusCode, body } = await put(putitem))
                 break;
+
             default:
                 throw new Error(`Unsupported method "${event.httpMethod}"`);
         }
