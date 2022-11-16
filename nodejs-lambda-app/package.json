@@ -1,0 +1,13 @@
+{
+    "name": "delete-test-01",
+    "description": "delete-test-01-description",
+    "version": "0.0.1",
+    "private": true,
+    "dependencies": {
+        "@aws-sdk/client-dynamodb": "^3.211.0",
+        "@aws-sdk/lib-dynamodb": "^3.211.0"
+    },
+    "scripts": {
+        "test": "jest"
+    }
+}
