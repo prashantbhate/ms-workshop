@@ -25,12 +25,20 @@ jobs:
             todoapi:
               - 'todoapi/**'
 
-      - name: Build todoui Using Node.js ${{ matrix.node-version }}
-        working-directory: todoui
-        if: steps.filter.outputs.todoui == 'true'
+      - name: Using Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
+      - name: Build todoui
+        working-directory: todoui
+        if: steps.filter.outputs.todoui == 'true'
+        run: |
+          npm ci
+          npm run build --if-present
+          npm test
+      - name: Build todoapi
+        working-directory: todoapi
+        if: steps.filter.outputs.todoapi == 'true'
         run: |
           npm ci
           npm run build --if-present
