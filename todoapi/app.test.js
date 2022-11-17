@@ -3,7 +3,6 @@ const app = require('./app')
 
 const { GenericContainer } = require("testcontainers");
 
-
 describe('TODOs API metrics', () => {
     it('GET /metrics', async () => {
         const response = await request(app)
@@ -39,7 +38,7 @@ describe('TODOs API healthcheck', () => {
         await request(app)
             .get("/health/ready/false")
             .expect(204);
-            const response = await request(app)
+        const response = await request(app)
             .get("/health/ready")
             .expect('Content-Type', /application\/json/)
             .expect(500);
@@ -49,7 +48,7 @@ describe('TODOs API healthcheck', () => {
         await request(app)
             .get("/health/live/false")
             .expect(204);
-            const response = await request(app)
+        const response = await request(app)
             .get("/health/live")
             .expect('Content-Type', /application\/json/)
             .expect(500);
@@ -251,7 +250,7 @@ describe('TODOs API', () => {
             .expect(404);
     });
 
-    it('invalid redis url',async ()=>{
+    it('invalid redis url', async () => {
         process.env.REDIS_URL = 'redis://localhost:' + 13241;
         await request(app)
             .get("/todos")

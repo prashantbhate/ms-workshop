@@ -7,7 +7,6 @@ import TodoRoot from './TodoRoot';
 
 describe.skip('Test TodoRoot', function () {
 
-
   const server = setupServer(
     rest.get('/mocktodos', (req, res, ctx) => {
       return res(ctx.json([{ "id": 1, "name": "Watch RRR", "done": true }]))
