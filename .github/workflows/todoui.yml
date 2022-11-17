@@ -9,14 +9,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        # Mobile folder working directory.
-        working-directory: todoui
 
     strategy:
       matrix:
-        node-version: [14.x, 16.x]
+        node-version: [16.x]
 
     steps:
       - uses: actions/checkout@v3
@@ -26,12 +22,16 @@ jobs:
           filters: |
             todoui:
               - 'todoui/**'
+            todoapi:
+              - 'todoapi/**'
 
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Build todoui Using Node.js ${{ matrix.node-version }}
+        working-directory: todoui
         if: steps.filter.outputs.todoui == 'true'
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-      - run: npm ci
-      - run: npm run build --if-present
-      - run: npm test
+        run: |
+          npm ci
+          npm run build --if-present
+          npm test
