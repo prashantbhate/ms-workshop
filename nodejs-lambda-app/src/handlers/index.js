@@ -3,7 +3,7 @@ const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
 
 const conf = {}
 if (process.env['DYNAMO_LOCAL_ENDPT'] && process.env['DYNAMO_LOCAL_ENDPT'] !== "") {
-    console.log("using:" + process.env['DYNAMO_LOCAL_ENDPT'])
+    console.log("Using: " + process.env['DYNAMO_LOCAL_ENDPT'])
     conf.endpoint = process.env['DYNAMO_LOCAL_ENDPT'];
 }
 
@@ -71,7 +71,6 @@ function parseAndValidate(body, mandatoryAttrs) {
 
 exports.handler = async (event, context) => {
     //console.log('Received event:', JSON.stringify(event, null, 2));
-
     let body;
     let statusCode = '200';
 
