@@ -1,6 +1,13 @@
 
 const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
-const client = new DynamoDBClient({});
+
+const conf = {}
+if (process.env['DYNAMO_LOCAL_ENDPT'] && process.env['DYNAMO_LOCAL_ENDPT'] !== "") {
+    console.log("using:" + process.env['DYNAMO_LOCAL_ENDPT'])
+    conf.endpoint = process.env['DYNAMO_LOCAL_ENDPT'];
+}
+
+const client = new DynamoDBClient(conf);
 const { DynamoDBDocumentClient, PutCommand, DeleteCommand, ScanCommand } = require("@aws-sdk/lib-dynamodb");
 const ddbDocClient = DynamoDBDocumentClient.from(client);
 
@@ -56,12 +63,11 @@ function parseAndValidate(body, mandatoryAttrs) {
     const item = JSON.parse(body)
     mandatoryAttrs.forEach((e) => {
         if (!item.hasOwnProperty(e)) {
-            throw new Error(`Attribute "$e" is mandatory`);
+            throw new Error(`Attribute "${e}" is mandatory`);
         }
     })
     return item;
 }
-
 
 exports.handler = async (event, context) => {
     //console.log('Received event:', JSON.stringify(event, null, 2));

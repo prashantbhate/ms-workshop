@@ -22,6 +22,7 @@ Resources:
       Environment:
         Variables:
           SAMPLE_TABLE: !Ref SampleTable
+          DYNAMO_LOCAL_ENDPT: ""
       Events:
         Api:
           Type: Api
