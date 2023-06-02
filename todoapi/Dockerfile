@@ -13,5 +13,6 @@ RUN npm ci --only=production
 # Bundle app source
 COPY . .
 
+# expose port 3000
 EXPOSE 3000
 CMD [ "npm", "start" ]
